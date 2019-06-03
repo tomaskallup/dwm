@@ -72,6 +72,7 @@ static const char *termcmd[]  = { "st", NULL };
 static const char *ffcmd[]    = { "firefox", NULL };
 static const char *voldcmd[]  = { "amixer", "sset", "Master", "5%-" };
 static const char *volucmd[]  = { "amixer", "sset", "Master", "5%+" };
+static const char *voltcmd[]  = { "amixer", "sset", "Master", "toggle" };
 
 static Key keys[] = {
 	/* modifier                     key                        function        argument */
@@ -116,6 +117,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_q,                      killclient,     {0} },
   { 0,                            XF86XK_AudioLowerVolume,   spawn,          {.v = voldcmd } },
   { 0,                            XF86XK_AudioRaiseVolume,   spawn,          {.v = volucmd } },
+  { 0,                            XF86XK_AudioMute,          spawn,          {.v = voltcmd } },
 };
 
 /* button definitions */
