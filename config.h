@@ -3,12 +3,12 @@
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int gappx     = 5;        /* gaps between windows */
-static const unsigned int snap      = 0;       /* snap pixel */
+static const unsigned int gappx     = 10;        /* gaps between windows */
+static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "SauceCodePro Nerd Font Mono:size=10" };
-static const char dmenufont[]       = "SauceCodePro Nerd Font Mono:size=10";
+static const char *fonts[]          = { "Inconsolata:size=12" };
+static const char dmenufont[]       = "Inconsolata:size=12";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -45,8 +45,10 @@ static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] 
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 
+#include "fibonacci.c"
 static const Layout layouts[] = {
 	/* symbol     arrange function */
+ 	{ "[@]",      spiral },
 	{ "|M|",      centeredmaster },    /* first entry is default */
 	{ "[]=",      tile },
 	{ "><>",      NULL },    /* no layout function means floating behavior */
@@ -73,6 +75,10 @@ static const char *ffcmd[]    = { "firefox", NULL };
 static const char *voldcmd[]  = { "amixer", "sset", "Master", "5%-" };
 static const char *volucmd[]  = { "amixer", "sset", "Master", "5%+" };
 static const char *voltcmd[]  = { "amixer", "sset", "Master", "toggle" };
+static const char *lockcmd[]  = { "slock", NULL };
+static const char *keyboardcmd[]  = { "/home/armeeh/.local/scripts/keyboard", NULL };
+static const char *emojicmd[]  = { "/home/armeeh/.local/scripts/emoji", NULL };
+static const char *muttcmd[]  = { "st", "neomutt" };
 
 static Key keys[] = {
 	/* modifier                     key                        function        argument */
@@ -113,11 +119,16 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                                      7)
 	TAGKEYS(                        XK_9,                                      8)
 	{ MODKEY|ShiftMask,             XK_q,                      quit,           {0} },
-  { MODKEY,                       XK_f,                      spawn,          {.v = ffcmd}},
+  { MODKEY,                       XK_f,                      spawn,          {.v = ffcmd } },
 	{ MODKEY,                       XK_q,                      killclient,     {0} },
+	{ MODKEY|ShiftMask,             XK_l,                      spawn,          {.v = lockcmd } },
+	{ MODKEY|ShiftMask,             XK_r,                      spawn,          {.v = dmenucmd } },
   { 0,                            XF86XK_AudioLowerVolume,   spawn,          {.v = voldcmd } },
   { 0,                            XF86XK_AudioRaiseVolume,   spawn,          {.v = volucmd } },
   { 0,                            XF86XK_AudioMute,          spawn,          {.v = voltcmd } },
+	{ MODKEY|ShiftMask,             XK_Tab,                    spawn,          {.v = keyboardcmd } },
+	{ MODKEY,                       XK_e,                      spawn,          {.v = emojicmd } },
+	{ MODKEY|ShiftMask,             XK_m,                      spawn,          {.v = muttcmd } },
 };
 
 /* button definitions */
