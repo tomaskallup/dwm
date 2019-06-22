@@ -126,7 +126,7 @@ static Key keys[] = {
   //{ MODKEY,                       XK_f,                       spawn,          {.v = ffcmd } },
 	{ MODKEY,                       XK_q,                       killclient,     {0} },
 	//{ MODKEY|ShiftMask,             XK_l,                       spawn,          {.v = lockcmd } },
-	{ MODKEY|ShiftMask,             XK_r,                       spawn,          {.v = dmenucmd } },
+	//{ MODKEY|ShiftMask,             XK_r,                       spawn,          {.v = dmenucmd } },
   //{ 0,                            XF86XK_AudioLowerVolume,    spawn,          {.v = voldcmd } },
   //{ 0,                            XF86XK_AudioRaiseVolume,    spawn,          {.v = volucmd } },
   //{ 0,                            XF86XK_AudioMute,           spawn,          {.v = voltcmd } },
