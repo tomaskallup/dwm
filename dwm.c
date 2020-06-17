@@ -94,7 +94,7 @@ struct Client {
 	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
 	int bw, oldbw;
 	unsigned int tags;
-	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
+	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isfakefullscreen;
 	Client *next;
 	Client *snext;
 	Monitor *mon;
@@ -242,6 +242,8 @@ static void xinitvisual();
 static void zoom(const Arg *arg);
 static void centeredmaster(Monitor *m);
 static void centeredfloatingmaster(Monitor *m);
+static void togglefullscreen(const Arg *arg);
+static void togglefakefullscreen(const Arg *arg);
 
 /* variables */
 static const char broken[] = "broken";
@@ -300,6 +302,7 @@ applyrules(Client *c)
 
 	/* rule matching */
 	c->isfloating = 0;
+	c->isfakefullscreen = 0;
 	c->tags = 0;
 	XGetClassHint(dpy, c->win, &ch);
 	class    = ch.res_class ? ch.res_class : broken;
@@ -584,7 +587,7 @@ configurenotify(XEvent *e)
 			updatebars();
 			for (m = mons; m; m = m->next) {
 				for (c = m->clients; c; c = c->next)
-					if (c->isfullscreen)
+					if (c->isfullscreen && !c->isfakefullscreen)
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
 				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
 			}
@@ -970,6 +973,7 @@ focusstack(const Arg *arg)
 	}
 	if (c) {
 		focus(c);
+    warp(c);
 		restack(selmon);
 	}
 }
@@ -1262,7 +1266,7 @@ movemouse(const Arg *arg)
 
 	if (!(c = selmon->sel))
 		return;
-	if (c->isfullscreen) /* no support moving fullscreen windows by mouse */
+	if (c->isfullscreen && !c->isfakefullscreen)
 		return;
 	restack(selmon);
 	ocx = c->x;
@@ -1417,7 +1421,7 @@ resizemouse(const Arg *arg)
 
 	if (!(c = selmon->sel))
 		return;
-	if (c->isfullscreen) /* no support resizing fullscreen windows by mouse */
+	if (c->isfullscreen && !c->isfakefullscreen)
 		return;
 	restack(selmon);
 	ocx = c->x;
@@ -1486,8 +1490,6 @@ restack(Monitor *m)
 	}
 	XSync(dpy, False);
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
-	if (m == selmon && (m->tagset[m->seltags] & m->sel->tags) && selmon->lt[selmon->sellt] != &layouts[2])
-		warp(m->sel);
 }
 
 void
@@ -1597,24 +1599,28 @@ setfullscreen(Client *c, int fullscreen)
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
 		c->isfullscreen = 1;
-		c->oldstate = c->isfloating;
-		c->oldbw = c->bw;
-		c->bw = 0;
-		c->isfloating = 1;
-		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
-		XRaiseWindow(dpy, c->win);
+		if (!c->isfakefullscreen) {
+			c->oldstate = c->isfloating;
+			c->oldbw = c->bw;
+			c->bw = 0;
+			c->isfloating = 1;
+			resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
+			XRaiseWindow(dpy, c->win);
+		}
 	} else if (!fullscreen && c->isfullscreen){
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)0, 0);
 		c->isfullscreen = 0;
-		c->isfloating = c->oldstate;
-		c->bw = c->oldbw;
-		c->x = c->oldx;
-		c->y = c->oldy;
-		c->w = c->oldw;
-		c->h = c->oldh;
-		resizeclient(c, c->x, c->y, c->w, c->h);
-		arrange(c->mon);
+		if (!c->isfakefullscreen) {
+			c->isfloating = c->oldstate;
+			c->bw = c->oldbw;
+			c->x = c->oldx;
+			c->y = c->oldy;
+			c->w = c->oldw;
+			c->h = c->oldh;
+			resizeclient(c, c->x, c->y, c->w, c->h);
+      arrange(c->mon);
+		}
 	}
 }
 
@@ -1751,7 +1757,7 @@ showhide(Client *c)
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
 		XMoveWindow(dpy, c->win, c->x, c->y);
-		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
+		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && (!c->isfullscreen || c->isfakefullscreen))
 			resize(c, c->x, c->y, c->w, c->h, 0);
 		showhide(c->snext);
 	} else {
@@ -1843,7 +1849,7 @@ togglefloating(const Arg *arg)
 {
 	if (!selmon->sel)
 		return;
-	if (selmon->sel->isfullscreen) /* no support for fullscreen windows */
+	if (selmon->sel->isfullscreen && !selmon->sel->isfakefullscreen)
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
 	if (selmon->sel->isfloating)
@@ -2315,6 +2321,7 @@ zoom(const Arg *arg)
 	if (c == nexttiled(selmon->clients))
 		if (!c || !(c = nexttiled(c->next)))
 			return;
+  warp(c);
 	pop(c);
 }
 
@@ -2442,5 +2449,47 @@ centeredfloatingmaster(Monitor *m)
 		resize(c, m->wx + tx, m->wy, w - (2*c->bw),
 		       m->wh - (2*c->bw), 0);
 		tx += WIDTH(c);
+	}
+}
+
+void
+togglefullscreen(const Arg *arg) {
+	if (!selmon->sel)
+		return;
+
+	setfullscreen(selmon->sel, !selmon->sel->isfullscreen);
+}
+
+void
+togglefakefullscreen(const Arg *arg)
+{
+	if (!selmon->sel)
+		return;
+
+	Client *c = selmon->sel;
+
+	if (!c->isfullscreen) {
+		c->isfakefullscreen = !c->isfakefullscreen;
+		return;
+	}
+
+	if (!c->isfakefullscreen) {
+		c->isfakefullscreen = 1;
+		c->isfloating = c->oldstate;
+		c->bw = c->oldbw;
+		c->x = c->oldx;
+		c->y = c->oldy;
+		c->w = c->oldw;
+		c->h = c->oldh;
+		resizeclient(c, c->x, c->y, c->w, c->h);
+		arrange(c->mon);
+	} else {
+		c->isfakefullscreen = 0;
+		c->oldstate = c->isfloating;
+		c->oldbw = c->bw;
+		c->bw = 0;
+		c->isfloating = 1;
+		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
+		XRaiseWindow(dpy, c->win);
 	}
 }

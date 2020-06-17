@@ -6,7 +6,10 @@ static const unsigned int gappx     = 10;        /* gaps between windows */
 static const unsigned int snap      = 1;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=12" };
+static const char *fonts[] = {
+	"monospace:size=12",
+	"Noto Sans Emoji:pixelsize=12:antialias=true:autohint=true",
+};
 static const char dmenufont[]       = "monospace:size=12";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
@@ -108,7 +111,8 @@ static Key keys[] = {
 	TAGKEYS(                                           XK_8,              7)
 	TAGKEYS(                                           XK_9,              8)
 	{ MODKEY|ShiftMask,                    XK_q,       quit,              {0} },
-	//{ MODKEY,                              XK_f,       togglefullscreen,  {1} },
+	{ MODKEY,                              XK_f,       togglefullscreen,  {1} },
+	{ MODKEY|ShiftMask,                    XK_f,       togglefakefullscreen,  {1} },
 	{ MODKEY,                              XK_q,       killclient,        {0} },
 };
 
