@@ -16,7 +16,7 @@ ${OBJ}: config.h config.mk
 config.h:
 	cp config.def.h $@
 
-dwm: ${OBJ}
+dwm: ${OBJ} scripts
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
@@ -30,6 +30,9 @@ dist: clean
 	gzip dwm-${VERSION}.tar
 	rm -rf dwm-${VERSION}
 
+scripts:
+	cp -R scripts $@
+
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f dwm ${DESTDIR}${PREFIX}/bin
@@ -37,6 +40,7 @@ install: all
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
+	cp -f scripts/*.sh $(DESTDIR)$(PREFIX)/bin
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\

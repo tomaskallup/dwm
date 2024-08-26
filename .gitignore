@@ -1,0 +1,7 @@
+.direnv
+config.h
+*.o
+dwm
+result
+.ccls-cache
+compile_commands.json
