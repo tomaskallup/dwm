@@ -43,7 +43,7 @@ get_volume() {
 }
 
 get_cpu_temp() {
-  local TEMP="$(sensors | grep -oP 'Package.*?\+\K[0-9.]+')"
+  local TEMP="$(sensors | grep -oP 'CPU.*?\+\K[0-9.]+')"
 
   TEMP="$TEMP°C"
 

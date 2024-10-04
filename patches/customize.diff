@@ -93,9 +93,18 @@ index 3bc9c3d..bdaa7d4 100644
  	TAGKEYS(                        XK_2,                      1)
  	TAGKEYS(                        XK_3,                      2)
 diff --git a/dwm.c b/dwm.c
-index d49f824..2498d8f 100644
+index d49f824..9bb4c15 100644
 --- a/dwm.c
 +++ b/dwm.c
+@@ -226,7 +226,7 @@ static void restack(Monitor *m);
+ static void run(void);
+ static void scan(void);
+ static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
+-static void sendmon(Client *c, Monitor *m);
++static void sendmon(Client *c, Monitor *m, int settags);
+ static void setclientstate(Client *c, long state);
+ static void setfocus(Client *c);
+ static void setfullscreen(Client *c, int fullscreen);
 @@ -243,6 +243,7 @@ static void tagmon(const Arg *arg);
  static void tile(Monitor *m);
  static void togglebar(const Arg *arg);
@@ -104,7 +113,53 @@ index d49f824..2498d8f 100644
  static void toggletag(const Arg *arg);
  static void toggleview(const Arg *arg);
  static void unfocus(Client *c, int setfocus);
-@@ -2073,6 +2074,14 @@ togglebar(const Arg *arg)
+@@ -1399,7 +1400,7 @@ movemouse(const Arg *arg)
+ 	} while (ev.type != ButtonRelease);
+ 	XUngrabPointer(dpy, CurrentTime);
+ 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+-		sendmon(c, m);
++		sendmon(c, m, 1);
+ 		selmon = m;
+ 		focus(NULL);
+ 	}
+@@ -1615,7 +1616,7 @@ resizemouse(const Arg *arg)
+ 	XUngrabPointer(dpy, CurrentTime);
+ 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
+ 	if ((m = recttomon(c->x, c->y, c->w, c->h)) != selmon) {
+-		sendmon(c, m);
++		sendmon(c, m, 1);
+ 		selmon = m;
+ 		focus(NULL);
+ 	}
+@@ -1685,7 +1686,7 @@ scan(void)
+ }
+ 
+ void
+-sendmon(Client *c, Monitor *m)
++sendmon(Client *c, Monitor *m, int settags)
+ {
+ 	if (c->mon == m)
+ 		return;
+@@ -1693,7 +1694,8 @@ sendmon(Client *c, Monitor *m)
+ 	detach(c);
+ 	detachstack(c);
+ 	c->mon = m;
+-	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
++  if (settags)
++    c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+ 	attach(c);
+ 	attachstack(c);
+ 	focus(NULL);
+@@ -2003,7 +2005,7 @@ tagmon(const Arg *arg)
+ {
+ 	if (!selmon->sel || !mons->next)
+ 		return;
+-	sendmon(selmon->sel, dirtomon(arg->i));
++	sendmon(selmon->sel, dirtomon(arg->i), 0);
+ }
+ 
+ void
+@@ -2073,6 +2075,14 @@ togglebar(const Arg *arg)
  	arrange(selmon);
  }
  
