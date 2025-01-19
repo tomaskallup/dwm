@@ -20,22 +20,12 @@ get_battery() {
 }
 
 get_volume() {
-  local Master="$(amixer sget Master)"
+  local Sink="$(pactl get-default-sink)"
 
-  local Side="Left"
+  local VOL=$(pactl get-sink-volume $Sink | awk '{print $5}')
+  local ON=$(pactl get-sink-mute $Sink | cut -d' ' -f2)
 
-  local ON="$(echo $Master | sed -n "s/.* Left: .*\[\(on\)\].*/\1/p")"
-
-  if [ -z $ON ]; then
-    Side="Mono"
-  fi
-
-  ON="$(echo $Master | sed -n "s/.* $Side: .*\[\(on\)\].*/\1/p")"
-  local VOL="$(echo $Master | sed -n "s/.* $Side: .*\[\([0-9]\+\)%\].*/\1/p")"
-
-  if [ "$ON" = "on" ]; then
-    VOL="$VOL%"
-  else
+  if [ "$ON" != "no" ]; then
     VOL="[-]"
   fi
 

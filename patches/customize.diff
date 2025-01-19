@@ -1,5 +1,5 @@
 diff --git a/config.def.h b/config.def.h
-index 3bc9c3d..23d82d6 100644
+index 3bc9c3d..c432ce1 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -1,15 +1,16 @@
@@ -59,9 +59,9 @@ index 3bc9c3d..23d82d6 100644
 +static const char *termcmd[]  = { "alacritty", NULL };
 +
 +/* Media keys */
-+static const char *upvol[]      = { "amixer",   "sset", "Master",      "5%+",      NULL };
-+static const char *downvol[]    = { "amixer",   "sset", "Master",      "5%-",      NULL };
-+static const char *mutevol[]    = { "amixer",   "sset",   "Master",      "toggle",   NULL };
++static const char *upvol[]      = { "/bin/sh", "-c", "pactl set-sink-volume $(pactl get-default-sink) +5%", NULL};
++static const char *downvol[]      = { "/bin/sh", "-c", "pactl set-sink-volume $(pactl get-default-sink) -5%", NULL};
++static const char *mutevol[]      = { "/bin/sh", "-c", "pactl set-sink-mute $(pactl get-default-sink) toggle", NULL};
 +static const char *brightup[]   = { "light",   "-A",         "10",   NULL };
 +static const char *brightdown[] = { "light",   "-U",         "10",   NULL };
 +static const char *playpause[] =  { "playerctl", "play-pause",       NULL };
@@ -83,9 +83,9 @@ index 3bc9c3d..23d82d6 100644
 +	{ 0,                            XF86XK_AudioNext,         spawn, {.v = playnext } },
 +	{ 0,                            XF86XK_AudioPrev,         spawn, {.v = playprev } },
 +	{ 0,                            XF86XK_AudioPlay,         spawn, {.v = playpause } },
-+  { 0,                            XF86XK_AudioLowerVolume,  spawn, {.v = downvol } },
-+	{ 0,                            XF86XK_AudioMute,         spawn, {.v = mutevol } },
-+	{ 0,                            XF86XK_AudioRaiseVolume,  spawn, {.v = upvol   } },
++  { 0,                            XF86XK_AudioLowerVolume,  spawn, {.v = downvol} },
++	{ 0,                            XF86XK_AudioMute,         spawn, {.v = mutevol} },
++	{ 0,                            XF86XK_AudioRaiseVolume,  spawn, {.v = upvol} },
 +  { 0,				                    XF86XK_MonBrightnessUp,	  spawn, {.v = brightup} },
 +	{ 0,				                    XF86XK_MonBrightnessDown, spawn, {.v = brightdown} },
 +	{ MODKEY|ShiftMask,             XK_Print,                 spawn, {.v = screenshot} },
