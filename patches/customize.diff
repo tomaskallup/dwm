@@ -1,5 +1,5 @@
 diff --git a/config.def.h b/config.def.h
-index 3bc9c3d..c432ce1 100644
+index 3bc9c3d..299a0bb 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -1,15 +1,16 @@
@@ -62,8 +62,8 @@ index 3bc9c3d..c432ce1 100644
 +static const char *upvol[]      = { "/bin/sh", "-c", "pactl set-sink-volume $(pactl get-default-sink) +5%", NULL};
 +static const char *downvol[]      = { "/bin/sh", "-c", "pactl set-sink-volume $(pactl get-default-sink) -5%", NULL};
 +static const char *mutevol[]      = { "/bin/sh", "-c", "pactl set-sink-mute $(pactl get-default-sink) toggle", NULL};
-+static const char *brightup[]   = { "light",   "-A",         "10",   NULL };
-+static const char *brightdown[] = { "light",   "-U",         "10",   NULL };
++static const char *brightup[]   = { "brightnessctl",   "set",         "+10%",   NULL };
++static const char *brightdown[] = { "brightnessctl",   "set",         "10%-",   NULL };
 +static const char *playpause[] =  { "playerctl", "play-pause",       NULL };
 +static const char *playnext[] =  { "playerctl", "next",              NULL };
 +static const char *playprev[] =  { "playerctl", "previous",          NULL };
