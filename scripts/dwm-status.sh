@@ -20,12 +20,11 @@ get_battery() {
 }
 
 get_volume() {
-  local Sink="$(pactl get-default-sink)"
+  local INFO=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
 
-  local VOL=$(pactl get-sink-volume $Sink | awk '{print $5}')
-  local ON=$(pactl get-sink-mute $Sink | cut -d' ' -f2)
+  local VOL=$(echo "$INFO" | awk '{printf "%d%%", $2*100}')
 
-  if [ "$ON" != "no" ]; then
+  if echo "$INFO" | grep -q MUTED; then
     VOL="[-]"
   fi
 
